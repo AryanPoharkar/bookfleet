@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum BusinessPlan {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum MembershipRole {
+  OWNER
+  MANAGER
+  STAFF
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String?
+  email        String       @unique
+  emailVerified DateTime?   @db.Timestamptz(3)
+  image        String?
+  passwordHash String?
+  accounts     Account[]
+  sessions     Session[]
+  memberships  Membership[]
+  staff        Staff[]
+  createdAt    DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime     @updatedAt @db.Timestamptz(3)
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime @db.Timestamptz(3)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime @db.Timestamptz(3)
+
+  @@id([identifier, token])
+}
+
+model Business {
+  id                     String        @id @default(cuid())
+  name                   String
+  slug                   String        @unique
+  timezone               String
+  currency               String        @default("USD")
+  logoUrl                String?
+  accentColor            String?
+  plan                   BusinessPlan  @default(FREE)
+  stripeCustomerId       String?       @unique
+  stripeSubscriptionId   String?       @unique
+  subscriptionStatus     String?
+  memberships            Membership[]
+  services               Service[]
+  staff                  Staff[]
+  workingHours           WorkingHours[]
+  timeOff                TimeOff[]
+  customers              Customer[]
+  bookings               Booking[]
+  invites                Invite[]
+  stripeEvents           StripeEvent[]
+  createdAt              DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime      @updatedAt @db.Timestamptz(3)
+}
+
+model Membership {
+  id         String           @id @default(cuid())
+  userId     String
+  businessId String
+  role       MembershipRole
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business   Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime         @updatedAt @db.Timestamptz(3)
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@index([businessId])
+}
+
+model Service {
+  id          String        @id @default(cuid())
+  businessId  String
+  name        String
+  description String?
+  durationMin Int
+  priceCents  Int
+  isActive    Boolean       @default(true)
+  business    Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  staffLinks  StaffService[]
+  bookings    Booking[]
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(3)
+
+  @@unique([businessId, id])
+  @@index([businessId, isActive])
+}
+
+model Staff {
+  id          String        @id @default(cuid())
+  businessId  String
+  userId      String?
+  name        String
+  email       String?
+  phone       String?
+  isActive    Boolean       @default(true)
+  business    Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  services    StaffService[]
+  workingHours WorkingHours[]
+  timeOff     TimeOff[]
+  bookings    Booking[]
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(3)
+
+  @@unique([businessId, id])
+  @@index([businessId, isActive])
+  @@index([userId])
+}
+
+model StaffService {
+  businessId String
+  staffId    String
+  serviceId  String
+  staff      Staff   @relation(fields: [businessId, staffId], references: [businessId, id], onDelete: Cascade)
+  service    Service @relation(fields: [businessId, serviceId], references: [businessId, id], onDelete: Cascade)
+
+  @@id([businessId, staffId, serviceId])
+}
+
+model WorkingHours {
+  id         String   @id @default(cuid())
+  businessId String
+  staffId    String
+  weekday    Int
+  startsAt   DateTime @db.Timestamptz(3)
+  endsAt     DateTime @db.Timestamptz(3)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  staff      Staff    @relation(fields: [businessId, staffId], references: [businessId, id], onDelete: Cascade)
+
+  @@index([staffId, weekday])
+}
+
+model TimeOff {
+  id         String   @id @default(cuid())
+  businessId String
+  staffId    String
+  startsAt   DateTime @db.Timestamptz(3)
+  endsAt     DateTime @db.Timestamptz(3)
+  reason     String?
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  staff      Staff    @relation(fields: [businessId, staffId], references: [businessId, id], onDelete: Cascade)
+
+  @@index([staffId, startsAt])
+}
+
+model Customer {
+  id         String    @id @default(cuid())
+  businessId String
+  name       String
+  email      String
+  phone      String?
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  bookings   Booking[]
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@unique([businessId, id])
+  @@unique([businessId, email])
+  @@index([businessId])
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  businessId  String
+  serviceId   String
+  staffId     String
+  customerId  String
+  startsAt    DateTime      @db.Timestamptz(3)
+  endsAt      DateTime      @db.Timestamptz(3)
+  status      BookingStatus @default(CONFIRMED)
+  notes       String?
+  cancelToken String        @unique
+  business    Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  service     Service       @relation(fields: [businessId, serviceId], references: [businessId, id], onDelete: NoAction)
+  staff       Staff         @relation(fields: [businessId, staffId], references: [businessId, id], onDelete: NoAction)
+  customer    Customer      @relation(fields: [businessId, customerId], references: [businessId, id], onDelete: NoAction)
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(3)
+
+  @@index([businessId, startsAt])
+  @@index([staffId, startsAt])
+}
+
+model Invite {
+  id         String   @id @default(cuid())
+  businessId String
+  email      String
+  role       MembershipRole
+  tokenHash  String   @unique
+  expiresAt  DateTime @db.Timestamptz(3)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([businessId])
+}
+
+model StripeEvent {
+  id             String   @id @default(cuid())
+  businessId     String?
+  stripeEventId  String   @unique
+  type           String
+  payload        Json
+  processedAt    DateTime? @db.Timestamptz(3)
+  business       Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+}
