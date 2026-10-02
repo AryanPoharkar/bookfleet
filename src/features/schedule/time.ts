@@ -1,0 +1,1 @@
+export function formatMinute(minute:number){const m=minute===1440?0:minute;const h=Math.floor(m/60);const min=m%60;const hour=h%12||12;return `${hour}:${String(min).padStart(2,"0")} ${h<12?"AM":"PM"}`;} export const MINUTE_OPTIONS=Array.from({length:97},(_,i)=>i*15);

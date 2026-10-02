@@ -1,0 +1,1 @@
+export type MinuteRange={startMinute:number;endMinute:number}; export function findOverlap(ranges:MinuteRange[]){for(let i=0;i<ranges.length;i++){for(let j=i+1;j<ranges.length;j++){if(ranges[i]!.startMinute<ranges[j]!.endMinute&&ranges[j]!.startMinute<ranges[i]!.endMinute)return i<j?[i,j]:[j,i];}}return null;}

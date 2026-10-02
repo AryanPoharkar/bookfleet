@@ -1,0 +1,2 @@
+import { Container } from "@/components/layout/container";
+export default function Loading() { return <Container className="py-10"><div className="h-10 w-2/3 animate-pulse rounded bg-muted" /><div className="mt-8 grid gap-4 sm:grid-cols-2"><div className="h-32 animate-pulse rounded-xl bg-muted" /><div className="h-32 animate-pulse rounded-xl bg-muted" /></div><div className="mt-8 space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-muted" />)}</div></Container>; }
