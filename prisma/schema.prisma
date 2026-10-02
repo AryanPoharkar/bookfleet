@@ -27,18 +27,18 @@ enum BookingStatus {
 }
 
 model User {
-  id           String       @id @default(cuid())
-  name         String?
-  email        String       @unique
-  emailVerified DateTime?   @db.Timestamptz(3)
-  image        String?
-  passwordHash String?
-  accounts     Account[]
-  sessions     Session[]
-  memberships  Membership[]
-  staff        Staff[]
-  createdAt    DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime     @updatedAt @db.Timestamptz(3)
+  id            String       @id @default(cuid())
+  name          String?
+  email         String       @unique
+  emailVerified DateTime?    @db.Timestamptz(3)
+  image         String?
+  passwordHash  String?
+  accounts      Account[]
+  sessions      Session[]
+  memberships   Membership[]
+  staff         Staff[]
+  createdAt     DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime     @updatedAt @db.Timestamptz(3)
 }
 
 model Account {
@@ -77,39 +77,39 @@ model VerificationToken {
 }
 
 model Business {
-  id                     String        @id @default(cuid())
-  name                   String
-  slug                   String        @unique
-  timezone               String
-  currency               String        @default("USD")
-  logoUrl                String?
-  accentColor            String?
-  plan                   BusinessPlan  @default(FREE)
-  stripeCustomerId       String?       @unique
-  stripeSubscriptionId   String?       @unique
-  subscriptionStatus     String?
-  memberships            Membership[]
-  services               Service[]
-  staff                  Staff[]
-  workingHours           WorkingHours[]
-  timeOff                TimeOff[]
-  customers              Customer[]
-  bookings               Booking[]
-  invites                Invite[]
-  stripeEvents           StripeEvent[]
-  createdAt              DateTime      @default(now()) @db.Timestamptz(3)
-  updatedAt              DateTime      @updatedAt @db.Timestamptz(3)
+  id                   String        @id @default(cuid())
+  name                 String
+  slug                 String        @unique
+  timezone             String
+  currency             String        @default("USD")
+  logoUrl              String?
+  accentColor          String?
+  plan                 BusinessPlan  @default(FREE)
+  stripeCustomerId     String?       @unique
+  stripeSubscriptionId String?       @unique
+  subscriptionStatus   String?
+  memberships          Membership[]
+  services             Service[]
+  staff                Staff[]
+  workingHours         WorkingHours[]
+  timeOff              TimeOff[]
+  customers            Customer[]
+  bookings             Booking[]
+  invites              Invite[]
+  stripeEvents         StripeEvent[]
+  createdAt            DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt            DateTime      @updatedAt @db.Timestamptz(3)
 }
 
 model Membership {
-  id         String           @id @default(cuid())
+  id         String         @id @default(cuid())
   userId     String
   businessId String
   role       MembershipRole
-  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  business   Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  createdAt  DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime         @updatedAt @db.Timestamptz(3)
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business   Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime       @updatedAt @db.Timestamptz(3)
 
   @@unique([userId, businessId])
   @@index([userId])
@@ -117,39 +117,41 @@ model Membership {
 }
 
 model Service {
-  id          String        @id @default(cuid())
-  businessId  String
-  name        String
-  description String?
-  durationMin Int
-  priceCents  Int
-  isActive    Boolean       @default(true)
-  business    Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  staffLinks  StaffService[]
-  bookings    Booking[]
-  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime      @updatedAt @db.Timestamptz(3)
+  id            String        @id @default(cuid())
+  businessId    String
+  name          String
+  description   String?
+  durationMin   Int
+  bufferMinutes Int           @default(0)
+  priceCents    Int
+  isActive      Boolean       @default(true)
+  business      Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  staffLinks    StaffService[]
+  bookings      Booking[]
+  createdAt     DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime      @updatedAt @db.Timestamptz(3)
 
   @@unique([businessId, id])
   @@index([businessId, isActive])
 }
 
 model Staff {
-  id          String        @id @default(cuid())
-  businessId  String
-  userId      String?
-  name        String
-  email       String?
-  phone       String?
-  isActive    Boolean       @default(true)
-  business    Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  services    StaffService[]
+  id           String         @id @default(cuid())
+  businessId   String
+  userId       String?
+  name         String
+  bio          String?
+  email        String?
+  phone        String?
+  isActive     Boolean        @default(true)
+  business     Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user         User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  services     StaffService[]
   workingHours WorkingHours[]
-  timeOff     TimeOff[]
-  bookings    Booking[]
-  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime      @updatedAt @db.Timestamptz(3)
+  timeOff      TimeOff[]
+  bookings     Booking[]
+  createdAt    DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime       @updatedAt @db.Timestamptz(3)
 
   @@unique([businessId, id])
   @@index([businessId, isActive])
@@ -231,25 +233,25 @@ model Booking {
 }
 
 model Invite {
-  id         String   @id @default(cuid())
+  id         String         @id @default(cuid())
   businessId String
   email      String
   role       MembershipRole
-  tokenHash  String   @unique
-  expiresAt  DateTime @db.Timestamptz(3)
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  tokenHash  String         @unique
+  expiresAt  DateTime       @db.Timestamptz(3)
+  business   Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime       @default(now()) @db.Timestamptz(3)
 
   @@index([businessId])
 }
 
 model StripeEvent {
-  id             String   @id @default(cuid())
-  businessId     String?
-  stripeEventId  String   @unique
-  type           String
-  payload        Json
-  processedAt    DateTime? @db.Timestamptz(3)
-  business       Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  id            String    @id @default(cuid())
+  businessId    String?
+  stripeEventId String    @unique
+  type          String
+  payload       Json
+  processedAt   DateTime? @db.Timestamptz(3)
+  business      Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
 }
