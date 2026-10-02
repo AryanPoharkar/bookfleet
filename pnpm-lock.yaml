@@ -209,7 +209,7 @@ importers:
   .:
     dependencies:
       '@auth/prisma-adapter':
-        specifier: ^2.11.3
+        specifier: 2.11.3
         version: 2.11.3(@prisma/client@7.10.0(prisma@7.10.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(typescript@5.9.3))
       '@base-ui/react':
         specifier: ^1.8.0
@@ -218,7 +218,7 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0
       '@hookform/resolvers':
-        specifier: ^5.9.1
+        specifier: 5.9.1
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(effect@3.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.2.8))(valibot@1.4.2(typescript@5.9.3))(zod@4.6.5)
       '@prisma/adapter-pg':
         specifier: ^7.10.0
@@ -263,7 +263,7 @@ importers:
         specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
       react-hook-form:
-        specifier: ^7.89.0
+        specifier: 7.89.0
         version: 7.89.0(@types/react@19.3.0)(react@19.2.8)
       shadcn:
         specifier: ^4.21.1

@@ -4,6 +4,8 @@ const envSchema = z.object({
   DATABASE_URL: z.url(),
   DIRECT_URL: z.url(),
   AUTH_SECRET: z.string().min(32),
+  AUTH_GOOGLE_ID: z.string().min(1),
+  AUTH_GOOGLE_SECRET: z.string().min(1),
   NEXT_PUBLIC_APP_URL: z.url(),
 });
 
