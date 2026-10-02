@@ -15,11 +15,11 @@ export function Sidebar({ slug, email, items, businesses }: { slug: string; emai
     <div className="border-b border-border p-5"><Logo /></div>
     <div className="px-4 pt-5">
       <DropdownMenu>
-        <DropdownMenuTrigger asChild><Button variant="outline" className="w-full justify-between"><span className="truncate">{businesses.find((b) => b.slug === slug)?.name ?? slug}</span><ChevronDown className="size-4" /></Button></DropdownMenuTrigger>
+        <DropdownMenuTrigger render={<Button variant="outline" className="w-full justify-between" />}><span className="truncate">{businesses.find((b) => b.slug === slug)?.name ?? slug}</span><ChevronDown className="size-4" /></DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
           <DropdownMenuLabel>Your businesses</DropdownMenuLabel>
-          {businesses.map((business) => <DropdownMenuItem key={business.slug} asChild><Link href={`/app/${business.slug}`}>{business.name}{business.slug === slug ? " ✓" : ""}</Link></DropdownMenuItem>)}
-          <DropdownMenuSeparator /><DropdownMenuItem asChild><Link href="/onboarding">New business</Link></DropdownMenuItem>
+          {businesses.map((business) => <DropdownMenuItem key={business.slug} render={<Link href={`/app/${business.slug}`} />}>{business.name}{business.slug === slug ? " ✓" : ""}</DropdownMenuItem>)}
+          <DropdownMenuSeparator /><DropdownMenuItem render={<Link href="/onboarding" />}>New business</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
