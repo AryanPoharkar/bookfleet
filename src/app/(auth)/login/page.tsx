@@ -8,7 +8,15 @@ type LoginPageProps = {
 };
 
 function safeCallbackUrl(value: string | undefined) {
-  return value && /^\/(?!\/)/.test(value) ? value : "/app";
+  if (!value || !/^\/(?!\/)/.test(value)) {
+    return "/app";
+  }
+
+  if (value === "/onboarding" || value.startsWith("/onboarding/")) {
+    return "/app";
+  }
+
+  return value;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {

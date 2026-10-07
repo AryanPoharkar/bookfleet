@@ -11,6 +11,10 @@ function safeCallbackUrl(value: FormDataEntryValue | null) {
     return "/app";
   }
 
+  if (value === "/onboarding" || value.startsWith("/onboarding/")) {
+    return "/app";
+  }
+
   return value;
 }
 
