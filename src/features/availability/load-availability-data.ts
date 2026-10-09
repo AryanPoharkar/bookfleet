@@ -1,9 +1,6 @@
 import { getLocalDayBounds, getLocalWeekday } from "./local-time";
 import { MAX_BUFFER_MINUTES } from "./config";
-import type { getTenantDb } from "../../server/tenancy/tenant-db";
-import type { StaffDay } from "./types";
-
-type TenantDb = ReturnType<typeof getTenantDb>;
+import type { AvailabilityDb, StaffDay } from "./types";
 
 export async function loadAvailabilityData({
   db,
@@ -12,7 +9,7 @@ export async function loadAvailabilityData({
   date,
   staffId,
 }: {
-  db: TenantDb;
+  db: AvailabilityDb;
   timezone: string;
   serviceId: string;
   date: string;

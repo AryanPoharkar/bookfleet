@@ -1,3 +1,7 @@
+import type { TenantDb } from "../../server/tenancy/types";
+
+export type AvailabilityDb = Pick<TenantDb, "service" | "staffService" | "staff" | "workingHours" | "timeOff" | "booking">;
+
 export type ServiceTiming = {
   durationMinutes: number;
   bufferMinutes: number;

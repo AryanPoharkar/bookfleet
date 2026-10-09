@@ -1,10 +1,7 @@
 import { computeAvailability } from "./compute-availability";
 import { isValidDateString } from "./local-time";
 import { loadAvailabilityData } from "./load-availability-data";
-import type { getTenantDb } from "../../server/tenancy/tenant-db";
-import type { Slot } from "./types";
-
-type TenantDb = ReturnType<typeof getTenantDb>;
+import type { AvailabilityDb, Slot } from "./types";
 
 export async function getAvailability({
   db,
@@ -14,7 +11,7 @@ export async function getAvailability({
   staffId,
   now = new Date(),
 }: {
-  db: TenantDb;
+  db: AvailabilityDb;
   timezone: string;
   serviceId: string;
   date: string;
