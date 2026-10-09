@@ -1,4 +1,4 @@
-import { Prisma } from "@/generated/prisma/client";
+﻿import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/server/db";
 
 export async function isSlugAvailable(slug: string) {
@@ -15,9 +15,10 @@ export async function createBusiness(input: {
 }) {
   try {
     return await db.$transaction(async (tx) => {
-      const business = await tx.business.create({ data: input });
+      const { userId, ...businessData } = input;
+      const business = await tx.business.create({ data: businessData });
       await tx.membership.create({
-        data: { userId: input.userId, businessId: business.id, role: "OWNER" },
+        data: { userId, businessId: business.id, role: "OWNER" },
       });
       const user = await tx.user.findUnique({
         where: { id: input.userId },
@@ -44,3 +45,4 @@ export async function createBusiness(input: {
     throw error;
   }
 }
+

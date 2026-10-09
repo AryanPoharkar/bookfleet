@@ -1,0 +1,3 @@
+import type { TenantDb } from "@/server/tenancy/types";
+import { groupBookingOptions } from "./group-options";
+export async function loadBookingOptions(db: TenantDb) { const [services, staff, links] = await Promise.all([db.service.findMany({ where: { isActive: true }, select: { id: true, name: true, durationMin: true, priceCents: true } }), db.staff.findMany({ where: { isActive: true }, select: { id: true, name: true, bio: true } }), db.staffService.findMany({ select: { serviceId: true, staffId: true } })]); return groupBookingOptions({ services: services.map((s) => ({ id: s.id, name: s.name, durationMinutes: s.durationMin, priceCents: s.priceCents })), staff: staff.map((person) => ({ ...person, photoUrl: null })), links }); }

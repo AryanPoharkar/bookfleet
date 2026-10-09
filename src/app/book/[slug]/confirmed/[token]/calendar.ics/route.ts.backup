@@ -1,0 +1,7 @@
+import { NextResponse } from "next/server";
+import { getPublicBusiness } from "@/server/tenancy/public-business";
+import { getTenantDb } from "@/server/tenancy/tenant-db";
+import { loadBookingSummary } from "@/features/public-booking/load-booking-summary";
+import { buildIcs } from "@/features/public-booking/ics";
+import { getAppUrl } from "@/server/app-url";
+export async function GET(_request: Request,{params}:{params:Promise<{slug:string;token:string}>}) { const {slug,token}=await params; const business=await getPublicBusiness(slug); if(!business) return new Response("Not found",{status:404}); const booking=await loadBookingSummary(getTenantDb(business.id),token); if(!booking||booking.status!=="CONFIRMED") return new Response("Not found",{status:404}); const url=`${getAppUrl()}/book/${slug}/confirmed/${token}`; const calendar=buildIcs({bookingId:booking.id,startsAt:booking.startsAt,endsAt:booking.endsAt,now:new Date(),summary:`${booking.serviceName} at ${business.name}`,description:`With ${booking.staffName}.\nManage or cancel: ${url}`,url}); return new NextResponse(calendar,{headers:{"Content-Type":"text/calendar; charset=utf-8","Content-Disposition":"attachment; filename="booking.ics"","Cache-Control":"no-store"}}); }
