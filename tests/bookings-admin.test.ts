@@ -1,0 +1,22 @@
+import { describe, expect, it } from "vitest";
+import { parseBookingFilters, bookingsHref } from "@/features/bookings-admin/filters";
+import { getBookingScope, buildBookingWhere } from "@/features/bookings-admin/scope";
+import { getPageInfo } from "@/features/bookings-admin/paginate";
+import { addDaysToDateString, getWeekStart, getWeekDates, formatDayHeading } from "@/features/bookings-admin/dates";
+import { localMinuteOfDay, getLocalMinutes } from "@/features/bookings-admin/minutes";
+import { getVisibleRange, layoutColumn } from "@/features/bookings-admin/calendar-layout";
+import { computeNoShowRate, planUsage, buildChecklist } from "@/features/bookings-admin/overview-stats";
+import { cancelReasonSchema, markStatusSchema, slotsQuerySchema, settingsSchema } from "@/features/bookings-admin/schemas";
+import { dashboardBookingMessage } from "@/features/bookings-admin/messages";
+
+describe("bookings admin pure helpers",()=>{
+ it("parses and serializes filters with defaults",()=>{expect(parseBookingFilters({})).toMatchObject({view:"day",when:"upcoming",q:"",page:1});expect(parseBookingFilters({view:["week","list"]}).view).toBe("week");expect(bookingsHref("northside-barbers",{})).toBe("/app/northside-barbers/bookings");expect(bookingsHref("northside-barbers",{view:"list",status:"CONFIRMED",q:"mia stone",page:2})).toBe("/app/northside-barbers/bookings?view=list&status=CONFIRMED&q=mia+stone&page=2");});
+ it("applies scope and filters",()=>{const now=new Date("2027-01-12T16:00:00Z");expect(getBookingScope("OWNER",null)).toEqual({kind:"all"});expect(getBookingScope("STAFF","stf1")).toEqual({kind:"own",staffId:"stf1"});expect(getBookingScope("STAFF",null)).toBeNull();expect(buildBookingWhere({scope:{kind:"all"},filters:parseBookingFilters({}),now})).toEqual({endsAt:{gt:now}});expect(buildBookingWhere({scope:{kind:"own",staffId:"mine"},filters:parseBookingFilters({staff:"other",when:"past"}),now})).toEqual({staffId:"mine",endsAt:{lte:now}});});
+ it("clamps pagination",()=>{expect(getPageInfo(0,1)).toMatchObject({page:1,pageCount:1,from:0,to:0});expect(getPageInfo(57,9)).toMatchObject({page:3,skip:40,from:41,to:57});});
+ it("handles calendar dates",()=>{expect(addDaysToDateString("2027-01-30",3)).toBe("2027-02-02");expect(getWeekStart("2027-01-12")).toBe("2027-01-11");expect(getWeekDates("2027-01-12")).toHaveLength(7);expect(formatDayHeading("2027-01-12")).toBe("Tue, Jan 12");});
+ it("converts local minutes including DST",()=>{expect(localMinuteOfDay(new Date("2027-01-12T16:00:00Z"),"America/Chicago")).toBe(600);expect(getLocalMinutes({startsAt:new Date("2027-01-13T05:00:00Z"),endsAt:new Date("2027-01-13T06:00:00Z"),date:"2027-01-12",timezone:"America/Chicago"})).toEqual({startMinute:1380,endMinute:1440});});
+ it("lays out overlapping events",()=>{expect(getVisibleRange([])).toEqual({startMinute:480,endMinute:1080});expect(layoutColumn([{id:"a",startMinute:540,endMinute:660},{id:"b",startMinute:600,endMinute:720},{id:"c",startMinute:660,endMinute:720}],{startMinute:480,endMinute:1080}).map(x=>[x.id,x.lane,x.laneCount])).toEqual([["a",0,2],["b",1,2],["c",0,2]]);});
+ it("calculates overview stats",()=>{expect(computeNoShowRate(9,1)).toEqual({finished:10,percent:10});expect(computeNoShowRate(0,0)).toEqual({finished:0,percent:null});expect(planUsage("FREE",50)).toMatchObject({limit:50,used:50,percent:100,reached:true});expect(buildChecklist("northside-barbers",{activeServices:0,staffWithServices:0,staffWithHours:0,bookings:0}).total).toBe(4);});
+ it("validates admin schemas",()=>{expect(cancelReasonSchema.parse("  Client called  ")).toBe("Client called");expect(cancelReasonSchema.parse("")).toBeUndefined();expect(markStatusSchema.safeParse({bookingId:"b1",status:"NO_SHOW"}).success).toBe(true);expect(slotsQuerySchema.safeParse({kind:"new",serviceId:"s1",staffId:null,date:"2027-01-12"}).success).toBe(true);const settings=settingsSchema.safeParse({name:"Northside Barbers",timezone:"America/Chicago",currency:"USD",accentColor:"#a6323a"});expect(settings.success&&settings.data.accentColor).toBe("#A6323A");});
+ it("returns dashboard messages",()=>{expect(dashboardBookingMessage("SLOT_TAKEN")).toBe("That time is no longer free. Pick another time.");expect(dashboardBookingMessage("NOT_STARTED")).toBe("You can mark an appointment once it has started.");expect(dashboardBookingMessage("unknown")).toBe("Something went wrong on our side. Please try again.");});
+});

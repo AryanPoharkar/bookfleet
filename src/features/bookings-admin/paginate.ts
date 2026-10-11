@@ -1,0 +1,2 @@
+export const PAGE_SIZE = 20;
+export function getPageInfo(total: number, page: number, pageSize = PAGE_SIZE) { const pageCount = Math.max(1, Math.ceil(total / pageSize)); const current = Math.min(pageCount, Math.max(1, Math.floor(page) || 1)); const skip = (current - 1) * pageSize; return { page: current, pageCount, skip, take: pageSize, from: total === 0 ? 0 : skip + 1, to: total === 0 ? 0 : Math.min(total, skip + pageSize) }; }

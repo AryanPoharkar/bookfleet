@@ -1,0 +1,5 @@
+Bookfleet Chunk 10 patch
+
+This patch contains the current Chunk 10 implementation files from the supplied project snapshot. It has not been run through the local pnpm typecheck/lint/test/build commands in the user's Windows environment. The specified database integration test file (tests/bookings-admin-db.test.ts) is not included yet, so do not treat this archive as fully verified against every Chunk 10 acceptance criterion.
+
+Apply only after making a clean git commit/backup. Review the migration SQL before running Prisma migrate.

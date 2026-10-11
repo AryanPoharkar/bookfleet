@@ -1,0 +1,2 @@
+import { Container } from "@/components/layout/container";
+export default function Loading() { return <Container className="space-y-5 py-8"><div className="h-10 w-1/3 animate-pulse rounded bg-muted"/><div className="h-12 animate-pulse rounded bg-muted"/><div className="space-y-3">{Array.from({length:6},(_,i)=><div key={i} className="h-16 animate-pulse rounded-lg border border-border bg-muted/50"/>)}</div></Container>; }

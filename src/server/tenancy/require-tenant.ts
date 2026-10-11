@@ -12,7 +12,7 @@ export const requireTenant = cache(async (slug: string) => {
   const staff = await getTenantDb(business.id).staff.findFirst({ where: { userId: user.id }, select: { id: true } });
   return {
     user,
-    business: { id: business.id, name: business.name, slug: business.slug, timezone: business.timezone, currency: business.currency, plan: business.plan },
+    business: { id: business.id, name: business.name, slug: business.slug, timezone: business.timezone, currency: business.currency, plan: business.plan, accentColor: business.accentColor },
     role, staffId: staff?.id ?? null, db: getTenantDb(business.id),
   };
 });

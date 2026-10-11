@@ -7,11 +7,13 @@ export async function cancelBooking({
   db,
   actor,
   ref,
+  reason,
   now = new Date(),
 }: {
   db: TenantDb;
   actor: BookingActor;
   ref: unknown;
+  reason?: string;
   now?: Date;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const parsed = bookingRefSchema.safeParse(ref);
@@ -29,7 +31,7 @@ export async function cancelBooking({
     const access = checkBookingAccess(actor, { staffId: booking.staffId, startsAt: booking.startsAt }, now);
     if (access !== "OK") throw new BookingFailure(access);
     if (booking.status !== "CONFIRMED") throw new BookingFailure("NOT_CONFIRMED");
-    const updated = await tenantDb.booking.updateMany({ where: { id: booking.id, status: "CONFIRMED" }, data: { status: "CANCELLED" } });
+    const updated = await tenantDb.booking.updateMany({ where: { id: booking.id, status: "CONFIRMED" }, data: { status: "CANCELLED", ...(reason === undefined ? {} : { cancelReason: reason }) } });
     if (updated.count === 0) throw new BookingFailure("NOT_CONFIRMED");
     return { ok: true };
   } catch (error) {

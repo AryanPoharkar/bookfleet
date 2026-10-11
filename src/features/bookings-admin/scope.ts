@@ -1,0 +1,6 @@
+import type { Prisma, MembershipRole } from "@/generated/prisma/client";
+import { can } from "@/server/rbac/permissions";
+import type { BookingFilters } from "./filters";
+export type BookingScope = { kind: "all" } | { kind: "own"; staffId: string };
+export function getBookingScope(role: MembershipRole, staffId: string | null): BookingScope | null { if (can(role,"booking:view_all")) return { kind:"all" }; if (can(role,"booking:view_own") && staffId) return { kind:"own", staffId }; return null; }
+export function buildBookingWhere({ scope, filters, now }: { scope: BookingScope; filters: BookingFilters; now: Date }): Prisma.BookingWhereInput { const where: Prisma.BookingWhereInput = {}; if (scope.kind === "own") where.staffId = scope.staffId; else if (filters.staff) where.staffId = filters.staff; if (filters.status) where.status = filters.status; if (filters.service) where.serviceId = filters.service; if (filters.when === "upcoming") where.endsAt = { gt: now }; else if (filters.when === "past") where.endsAt = { lte: now }; if (filters.q) where.customer = { OR: [ { name: { contains: filters.q, mode: "insensitive" } }, { email: { contains: filters.q, mode: "insensitive" } }, { phone: { contains: filters.q, mode: "insensitive" } } ] }; return where; }
