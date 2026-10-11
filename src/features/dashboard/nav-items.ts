@@ -8,4 +8,5 @@ export const NAV_ITEMS: NavItem[] = [
  {label:"My schedule",href:"/staff/:staffId/schedule",icon:"calendar-days",staffOnly:true},
  {label:"Members",href:"/members",icon:"user-round-cog",permission:"members:manage"},
  {label:"Settings",href:"/settings",icon:"settings",permission:"settings:manage"},
+ {label:"Billing",href:"/billing",icon:"credit-card",permission:"billing:manage"},
 ];

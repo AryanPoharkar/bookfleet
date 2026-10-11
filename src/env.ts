@@ -7,6 +7,10 @@ const envSchema = z.object({
   AUTH_GOOGLE_ID: z.string().min(1),
   AUTH_GOOGLE_SECRET: z.string().min(1),
   NEXT_PUBLIC_APP_URL: z.url(),
+  STRIPE_SECRET_KEY: z.string().startsWith("sk_test_"),
+  STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
+  STRIPE_PRICE_PRO: z.string().startsWith("price_"),
+  STRIPE_PRICE_BUSINESS: z.string().startsWith("price_"),
 });
 
 const result = envSchema.safeParse(process.env);

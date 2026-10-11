@@ -1,0 +1,2 @@
+import { PageHeader } from "@/components/layout/page-header";
+export default function BillingLoading() { return <div className="space-y-6"><PageHeader title="Billing" description="Manage your Bookfleet plan and subscription." /><div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]"><div className="h-64 animate-pulse rounded-lg border" /><div className="space-y-4 rounded-lg border p-5">{Array.from({ length: 4 }, (_, i) => <div key={i} className="h-10 animate-pulse rounded bg-muted" />)}</div></div></div>; }
