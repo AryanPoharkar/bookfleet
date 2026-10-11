@@ -11,7 +11,11 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
   STRIPE_PRICE_PRO: z.string().startsWith("price_"),
   STRIPE_PRICE_BUSINESS: z.string().startsWith("price_"),
-});
+  BILLING_MOCK: z.enum(["true", "false"]).optional(),
+}).refine(
+  (value) => !(value.BILLING_MOCK === "true" && process.env.NODE_ENV === "production"),
+  { message: "BILLING_MOCK=true is only allowed in development.", path: ["BILLING_MOCK"] },
+);
 
 const result = envSchema.safeParse(process.env);
 
