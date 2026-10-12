@@ -7,9 +7,9 @@ export const PLAN_LIMITS: Record<Plan, { bookingsPerMonth: number | null }> = {
   BUSINESS: { bookingsPerMonth: null },
 };
 
-// Prices must match the Stripe prices; chunk 14's pricing page reads this file.
-export const PLANS: Record<Plan, { name: string; priceMonthlyCents: number; limits: { activeStaff: number | null; bookingsPerMonth: number | null }; extras: string[] }> = {
-  FREE: { name: "Free", priceMonthlyCents: 0, limits: { activeStaff: 1, bookingsPerMonth: PLAN_LIMITS.FREE.bookingsPerMonth }, extras: [] },
-  PRO: { name: "Pro", priceMonthlyCents: 1900, limits: { activeStaff: 5, bookingsPerMonth: PLAN_LIMITS.PRO.bookingsPerMonth }, extras: [] },
-  BUSINESS: { name: "Business", priceMonthlyCents: 4900, limits: { activeStaff: null, bookingsPerMonth: PLAN_LIMITS.BUSINESS.bookingsPerMonth }, extras: ["Priority email support", "No \"Powered by Bookfleet\" line on your booking page"] },
+// Razorpay prices are INR paise per month and independent of Business.currency.
+export const PLANS: Record<Plan, { name: string; priceMonthlyCents: number; priceMonthlyInrPaise: number; limits: { activeStaff: number | null; bookingsPerMonth: number | null }; extras: string[] }> = {
+  FREE: { name: "Free", priceMonthlyCents: 0, priceMonthlyInrPaise: 0, limits: { activeStaff: 1, bookingsPerMonth: PLAN_LIMITS.FREE.bookingsPerMonth }, extras: [] },
+  PRO: { name: "Pro", priceMonthlyCents: 1900, priceMonthlyInrPaise: 149900, limits: { activeStaff: 5, bookingsPerMonth: PLAN_LIMITS.PRO.bookingsPerMonth }, extras: [] },
+  BUSINESS: { name: "Business", priceMonthlyCents: 4900, priceMonthlyInrPaise: 399900, limits: { activeStaff: null, bookingsPerMonth: PLAN_LIMITS.BUSINESS.bookingsPerMonth }, extras: ["Priority email support", "No \"Powered by Bookfleet\" line on your booking page"] },
 };

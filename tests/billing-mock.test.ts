@@ -1,3 +1,4 @@
+
 import { describe, expect, it } from "vitest";
 import { isMockBillingEnabled } from "../src/server/stripe/mock/guard";
 import { getBillingMode } from "../src/server/stripe/billing-mode";
@@ -103,12 +104,29 @@ describe("development mock billing", () => {
     expect(build({ kind: "payment_recovered" }, { subscriptionStatus: "past_due" })).toMatchObject({ ok: true, event: { kind: "subscription_changed", stripeType: "customer.subscription.updated", subscription: { status: "active", priceId: "price_mock_pro" } } });
     expect(build({ kind: "cancel" })).toMatchObject({ ok: true, event: { kind: "subscription_deleted", stripeType: "customer.subscription.deleted", subscription: { status: "canceled", priceId: "price_mock_pro" } } });
     const free: MockBusiness = { id: "biz1", plan: "FREE", stripeCustomerId: null, stripeSubscriptionId: null, subscriptionStatus: null };
-    for (const input of [{ kind: "change_plan", plan: "PRO" }, { kind: "payment_failed" }, { kind: "payment_recovered" }, { kind: "cancel" }] satisfies MockActionInput[]) {
+    const freePlanChange = buildMockEvent({
+      input: { kind: "change_plan", plan: "PRO" },
+      business: free,
+      eventId: "evt_mock_1",
+      newCustomerId: "cus_mock_new",
+      newSubscriptionId: "sub_mock_new",
+    });
+    expect(freePlanChange).toMatchObject({
+      ok: true,
+      event: {
+        kind: "checkout_completed",
+        customerId: "cus_mock_new",
+        subscription: { id: "sub_mock_new", priceId: "price_mock_pro" },
+      },
+    });
+    for (const input of [{ kind: "payment_failed" }, { kind: "payment_recovered" }, { kind: "cancel" }] satisfies MockActionInput[]) {
       expect(buildMockEvent({ input, business: free, eventId: "evt_mock_1", newCustomerId: "cus_mock_new", newSubscriptionId: "sub_mock_new" })).toEqual({ ok: false, error: "NO_SUBSCRIPTION" });
     }
-    for (const input of [{ kind: "change_plan", plan: "PRO" }, { kind: "payment_failed" }, { kind: "payment_recovered" }, { kind: "cancel" }] satisfies MockActionInput[]) {
+    for (const input of [{ kind: "payment_failed" }, { kind: "payment_recovered" }, { kind: "cancel" }] satisfies MockActionInput[]) {
       expect(build(input, { subscriptionStatus: "canceled" })).toEqual({ ok: false, error: "NO_SUBSCRIPTION" });
     }
+    const restarted = build({ kind: "change_plan", plan: "PRO" }, { subscriptionStatus: "canceled" });
+    expect(restarted).toMatchObject({ ok: true, event: { kind: "checkout_completed", customerId: "cus_mock_1", subscription: { id: "sub_mock_new", priceId: "price_mock_pro" } } });
     for (const input of [{ kind: "checkout", plan: "PRO" }, { kind: "change_plan", plan: "BUSINESS" }, { kind: "payment_failed" }, { kind: "payment_recovered" }, { kind: "cancel" }] satisfies MockActionInput[]) {
       expect(buildMockEvent({ input, business: { ...business, stripeCustomerId: "cus_123" }, eventId: "evt_mock_1", newCustomerId: "cus_mock_new", newSubscriptionId: "sub_mock_new" })).toEqual({ ok: false, error: "NOT_MOCK_SUBSCRIPTION" });
     }

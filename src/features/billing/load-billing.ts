@@ -7,6 +7,8 @@ export type BillingOverview = {
   subscriptionStatus: string | null;
   hasCustomer: boolean;
   hasSubscription: boolean;
+  billingProvider: "STRIPE" | "RAZORPAY" | null;
+  hasRazorpaySubscription: boolean;
   activeStaff: number;
   bookingsThisMonth: number;
 };
@@ -27,6 +29,8 @@ export async function loadBillingOverview({
       subscriptionStatus: true,
       stripeCustomerId: true,
       stripeSubscriptionId: true,
+      billingProvider: true,
+      razorpaySubscriptionId: true,
     },
   });
   const staffPromise = db.staff.count({ where: { isActive: true } });
@@ -48,6 +52,8 @@ export async function loadBillingOverview({
     subscriptionStatus: business.subscriptionStatus,
     hasCustomer: Boolean(business.stripeCustomerId),
     hasSubscription: Boolean(business.stripeSubscriptionId),
+    billingProvider: business.billingProvider,
+    hasRazorpaySubscription: Boolean(business.razorpaySubscriptionId),
     activeStaff,
     bookingsThisMonth,
   };

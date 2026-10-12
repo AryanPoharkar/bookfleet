@@ -13,6 +13,11 @@ enum BusinessPlan {
   BUSINESS
 }
 
+enum BillingProvider {
+  STRIPE
+  RAZORPAY
+}
+
 enum MembershipRole {
   OWNER
   MANAGER
@@ -85,8 +90,11 @@ model Business {
   logoUrl              String?
   accentColor          String?
   plan                 BusinessPlan  @default(FREE)
-  stripeCustomerId     String?       @unique
-  stripeSubscriptionId String?       @unique
+  stripeCustomerId       String?            @unique
+  stripeSubscriptionId   String?            @unique
+  billingProvider        BillingProvider?
+  razorpayCustomerId     String?
+  razorpaySubscriptionId String?            @unique
   subscriptionStatus   String?
   memberships          Membership[]
   services             Service[]

@@ -39,9 +39,15 @@ export function buildMockEvent({
     || (business.stripeSubscriptionId !== null && !isMockId(business.stripeSubscriptionId))
   ) return { ok: false, error: "NOT_MOCK_SUBSCRIPTION" };
 
-  const live = ["active", "trialing", "past_due"].includes(business.subscriptionStatus ?? "");
-  if (input.kind === "checkout") {
+  const liveStatus = ["active", "trialing", "past_due"].includes(business.subscriptionStatus ?? "");
+  const hasIds = Boolean(business.stripeCustomerId && business.stripeSubscriptionId);
+  const live = liveStatus && hasIds;
+  if (input.kind === "change_plan" && liveStatus && !hasIds) {
+    return { ok: false, error: "NO_SUBSCRIPTION" };
+  }
+  if (input.kind === "checkout" || (input.kind === "change_plan" && !live)) {
     if (live) return { ok: false, error: "ALREADY_SUBSCRIBED" };
+    const plan = input.plan;
     const customerId = business.stripeCustomerId ?? newCustomerId;
     return {
       ok: true,
@@ -55,7 +61,7 @@ export function buildMockEvent({
           id: newSubscriptionId,
           customerId,
           status: "active",
-          priceId: MOCK_PRICE_MAP[input.plan],
+          priceId: MOCK_PRICE_MAP[plan],
           businessId: business.id,
         },
       },

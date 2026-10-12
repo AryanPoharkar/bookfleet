@@ -17,8 +17,7 @@ export async function toBillingEvent(event: Stripe.Event, fetchSubscription: (id
  }
  if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
   if (!("items" in obj) || !("customer" in obj)) return null;
-  const snapshot: SubscriptionSnapshot = { id: obj.id, customerId: idOf(obj.customer) ?? "", status: obj.status, priceId: obj.items.data[0]?.price.id ?? null, businessId: obj.metadata.businessId ?? null };
-  if (!snapshot.customerId) return null;
+  const snapshot: SubscriptionSnapshot = { id: obj.id, customerId: idOf(obj.customer), status: obj.status, priceId: obj.items.data[0]?.price.id ?? null, businessId: obj.metadata.businessId ?? null };
   return event.type === "customer.subscription.updated"
    ? { kind: "subscription_changed", eventId: event.id, stripeType: "customer.subscription.updated", subscription: snapshot }
    : { kind: "subscription_deleted", eventId: event.id, stripeType: "customer.subscription.deleted", subscription: snapshot };
